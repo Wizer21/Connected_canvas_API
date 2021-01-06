@@ -1,16 +1,22 @@
 // Imports
-var express = require('express');
+const http = require('http');
+const lowdb = require('./lowdb.js')
 
-// Instanciate server
-var server = express();
+console.log("--- API IS STARTING ---")
 
-//Configure routes
-server.get('/', function (req, res){
-    res.setHeader('Content-Type', 'text/html');
-    res.status(200).send('<h1>Bonjour, sur le server</h1>');
-});
+// Quick HTTP server creation
+var server = http.createServer(
+    async function(request, answer)
+    {
+        if(request.method === 'GET')
+        {
+            if(request.url === '/temperature' || request.url === '/temperature/')
+            {
+                const temperature = await lowdb.listerTemperatures();
+                answer.end(JSON.stringify(temperature));
+            }
+        }
+    });
+server.listen(8080);
 
-//Launch server
-server.listen(8080, function(){
-    console.log('Server en écoute')
-});
+console.log("--- API IS NOW RUNNING ---")
