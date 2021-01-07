@@ -1,6 +1,6 @@
 // Imports
 const http = require('http');
-const lowdb = require('./lowdb.js')
+const my_lowdb = require('./DAOlowdb.js')
 
 console.log("--- API IS STARTING ---")
 
@@ -10,10 +10,11 @@ var server = http.createServer(
     {
         if(request.method === 'GET')
         {
-            if(request.url === '/temperature' || request.url === '/temperature/')
+            if(request.url === '/pseudo' || request.url === '/pseudo/')
             {
-                const temperature = await lowdb.listerTemperatures();
-                answer.end(JSON.stringify(temperature));
+                const data = await my_lowdb.getPseudo();
+                console.log(data)
+                answer.end(JSON.stringify(data));
             }
         }
     });
