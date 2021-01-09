@@ -105,3 +105,6 @@ dist
 
 # Connnection variables and data
 connection_strings.js
+
+# Skip database
+db.json
