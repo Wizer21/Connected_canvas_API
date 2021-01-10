@@ -37,13 +37,11 @@ var server = http.createServer(
                 const userDetails = await my_lowdb.getUserFromName(checked_pseudo)
                 if (userDetails != null && userDetails['password'] === url_query["pass"]){
                     answer.end("true") 
-
-                    console.log("CONNECTION SUCCES")    
+  
                     login(checked_pseudo)
                 }
                 else{
-                    answer.end("false")    
-                    console.log("CONNECTION FAILED")                
+                    answer.end("false")                
                 }
             }
             else if (url_parts === '/logout' || url_parts === '/logout/') // LOGOUT --
@@ -51,22 +49,32 @@ var server = http.createServer(
                 const url_query = url.parse(request.url, true).query  
                 const checked_pseudo = url_query["pseudo"]
 
-                console.log("LOGOUT GET ", checked_pseudo)
                 logout(checked_pseudo)
-                answer.end(checked_pseudo, " out")    
+                answer.end(checked_pseudo, " logged out")    
             }
-            else if (url_parts === '/showonline' || url_parts === '/showonline/') // LOGOUT --
+            else if (url_parts === '/friendlist' || url_parts === '/friendlist/') // LOGOUT --
             {
-                answer.end("User connected: " + ONLINE_USERS)    
+                const url_query = url.parse(request.url, true).query  
+                const checked_pseudo = url_query["pseudo"]
+
+                const user = my_lowdb.getUserFromName(checked_pseudo)
+                answer.end(user["friends"].toString())    
+            }
+            else if (url_parts === '/onlineusers' || url_parts === '/onlineusers/') // LOGOUT --
+            {
+                console.log("new request");
+                console.log(ONLINE_USERS);
+                answer.end(ONLINE_USERS.toString())    
             }
         }
     })
+
 server.listen(8080);
 
 function login(userName){
     if (!ONLINE_USERS.includes(userName)){
         ONLINE_USERS.push(userName)
-        console.log("NEW CONNECTION", ONLINE_USERS);
+        console.log("LOGIN " + userName);
     }
 }
 function logout(userName){
@@ -74,13 +82,10 @@ function logout(userName){
         for( var i = 0; i < ONLINE_USERS.length; i++){     
             if (ONLINE_USERS[i] === userName) {         
                 ONLINE_USERS.splice(i, 1); 
-                console.log(userName, " DISCONNECTED");
-                console.log(ONLINE_USERS);
+                console.log("LOGOUT " + userName);
                 return
-            }
-        
-        }
-        
+            }        
+        }        
     }
 }
 console.log("--- API IS NOW RUNNING ---")
