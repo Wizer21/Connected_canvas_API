@@ -22,7 +22,7 @@ exports.getPseudo = function getPseudo(){
             .value()        
 }
 
-exports.doPseudoExists = function doPseudoExists(newPseudo){   
+exports.getUserFromName = function getUserFromName(newPseudo){   
     return db.get('users')
           .find({pseudo: newPseudo})
           .value()
@@ -37,4 +37,8 @@ exports.newUser = function newUser(newPseudo, newPassword){
     .value()
       
   db.update('count', n => n + 1).write()
+}
+
+exports.login = function login(newPseudo, newPassword){
+
 }
