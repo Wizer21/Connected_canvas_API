@@ -70,7 +70,15 @@ var server = http.createServer(
             else if (url_parts === '/createroom' || url_parts === '/createroom/') // CREATEROOM --
             {
                 const url_query = url.parse(request.url, true).query  
-                const name = url_query["name"]
+
+                console.log("IN");
+                console.log(url_query);
+                const name = url_query["name"]                
+                if (name in ROOMS){
+                    console.log("Name not avaible");
+                    answer.end("Name not avaible") 
+                    return
+                }
                 const isLock = url_query["lock"]
                 const password = url_query["pass"]
                 
@@ -81,6 +89,8 @@ var server = http.createServer(
                 }
 
                 ROOMS[name] = newRoom
+                console.log(ROOMS);
+                answer.end("done")    
             }
         }
     })
