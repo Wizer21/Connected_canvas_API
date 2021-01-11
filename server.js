@@ -5,6 +5,7 @@ const url = require('url')
 
 console.log("--- API IS STARTING ---")
 let ONLINE_USERS = []
+let ROOMS = {}
 
 // Quick HTTP server creation
 var server = http.createServer(
@@ -52,7 +53,7 @@ var server = http.createServer(
                 logout(checked_pseudo)
                 answer.end(checked_pseudo, " logged out")    
             }
-            else if (url_parts === '/friendlist' || url_parts === '/friendlist/') // LOGOUT --
+            else if (url_parts === '/friendlist' || url_parts === '/friendlist/') // FRIENDLIST --
             {
                 const url_query = url.parse(request.url, true).query  
                 const checked_pseudo = url_query["pseudo"]
@@ -60,11 +61,26 @@ var server = http.createServer(
                 const user = my_lowdb.getUserFromName(checked_pseudo)
                 answer.end(user["friends"].toString())    
             }
-            else if (url_parts === '/onlineusers' || url_parts === '/onlineusers/') // LOGOUT --
+            else if (url_parts === '/onlineusers' || url_parts === '/onlineusers/') // ONLINEUSERS --
             {
                 console.log("new request");
                 console.log(ONLINE_USERS);
                 answer.end(ONLINE_USERS.toString())    
+            }
+            else if (url_parts === '/createroom' || url_parts === '/createroom/') // CREATEROOM --
+            {
+                const url_query = url.parse(request.url, true).query  
+                const name = url_query["name"]
+                const isLock = url_query["lock"]
+                const password = url_query["pass"]
+                
+                let newRoom = {
+                    isPublic: isLock,
+                    Password: password, 
+                    Layers: []
+                }
+
+                ROOMS[name] = newRoom
             }
         }
     })
