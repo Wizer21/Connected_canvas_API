@@ -14,7 +14,28 @@ var server = http.createServer(
         const url_parts = url.parse(request.url, true).pathname //  /create
         if(request.method === 'GET')
         {
-            if(url_parts === '/create' || url_parts === '/create/') // CREATE ACCOUNT --
+            if(url_parts === '/updateroom' || url_parts === '/updateroom/') // UPDATE ROOM --
+            {   
+                const url_query = url.parse(request.url, true).query 
+                const room = url_query["name"]
+                const user = url_query["user"]
+                const map = url_query["map"]
+                const iterator = url_query["it"]
+
+                if (room in ROOMS){
+                    let userCanvas = {
+                        map: map,
+                        iterator: iterator
+                    }
+                                   
+                    ROOMS[room]["Layers"][user] = userCanvas
+                    answer.end(ROOMS[room])  
+                }
+                else{
+                    answer.end("Room not found")                    
+                }
+            }
+            else if(url_parts === '/create' || url_parts === '/create/') // CREATE ACCOUNT --
             {   
                 const url_query = url.parse(request.url, true).query  //  url query:  [Object: null prototype] { pseudo: 'simon', pass: '1234' }
                 const checked_pseudo = url_query["pseudo"]
@@ -85,7 +106,7 @@ var server = http.createServer(
                 let newRoom = {
                     isPublic: isLock,
                     Password: password, 
-                    Layers: []
+                    Layers: {}
                 }
 
                 ROOMS[name] = newRoom
