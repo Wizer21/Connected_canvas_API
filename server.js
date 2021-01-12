@@ -16,12 +16,14 @@ var server = http.createServer(
         {
             if(url_parts === '/updateroom' || url_parts === '/updateroom/') // UPDATE ROOM --
             {   
+                console.log("in update");
                 const url_query = url.parse(request.url, true).query 
-                const room = url_query["name"]
+                const room = url_query["room"]
                 const user = url_query["user"]
                 const map = url_query["map"]
                 const iterator = url_query["it"]
 
+                console.log(url_query);
                 if (room in ROOMS){
                     let userCanvas = {
                         map: map,
@@ -29,7 +31,7 @@ var server = http.createServer(
                     }
                                    
                     ROOMS[room]["Layers"][user] = userCanvas
-                    answer.end(ROOMS[room])  
+                    answer.end(ROOMS[room]["Layers"].toString())  
                 }
                 else{
                     answer.end("Room not found")                    
@@ -92,7 +94,6 @@ var server = http.createServer(
             {
                 const url_query = url.parse(request.url, true).query  
 
-                console.log("IN");
                 console.log(url_query);
                 const name = url_query["name"]                
                 if (name in ROOMS){
@@ -112,6 +113,11 @@ var server = http.createServer(
                 ROOMS[name] = newRoom
                 console.log(ROOMS);
                 answer.end("done")    
+            }
+            else if (url_parts === '/printrooms' || url_parts === '/printrooms/')
+            {
+                console.log("ROOMS IN");
+                answer.end(ROOMS)    
             }
         }
     })
