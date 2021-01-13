@@ -101,11 +101,9 @@ var server = http.createServer(
                     answer.end("Name not avaible") 
                     return
                 }
-                const isLock = url_query["lock"]
                 const password = url_query["pass"]
                 
                 let newRoom = {
-                    isPublic: isLock,
                     Password: password, 
                     Layers: {}
                 }
@@ -114,10 +112,18 @@ var server = http.createServer(
                 console.log(ROOMS);
                 answer.end("done")    
             }
-            else if (url_parts === '/printrooms' || url_parts === '/printrooms/')
+            else if (url_parts === '/roomlistpass' || url_parts === '/roomlistpass/')
             {
-                console.log("ROOMS IN");
-                answer.end(ROOMS)    
+                let passwordList = {}
+                for (roomName in ROOMS){
+                    console.log("roomlistpass iterate " + roomName);
+                    console.log("roomlistpass room " + ROOMS[roomName].toString());
+                    console.log("roomlistpass pass " + ROOMS[roomName]["Password"].toString());
+                    passwordList.push([roomName] = ROOMS[roomName]["Password"].toString())
+                }
+                console.log("passlist " + passwordList.toString());
+                
+                answer.end(passwordList.toString())    
             }
         }
     })
