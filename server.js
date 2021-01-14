@@ -14,30 +14,7 @@ var server = http.createServer(
         const url_parts = url.parse(request.url, true).pathname //  /create
         if(request.method === 'GET')
         {
-            if(url_parts === '/updateroom' || url_parts === '/updateroom/') // UPDATE ROOM --
-            {   
-                console.log("in update");
-                const url_query = url.parse(request.url, true).query 
-                const room = url_query["room"]
-                const user = url_query["user"]
-                const map = url_query["map"]
-                const iterator = url_query["it"]
-
-                console.log(url_query);
-                if (room in ROOMS){
-                    let userCanvas = {
-                        map: map,
-                        iterator: iterator
-                    }
-                                   
-                    ROOMS[room]["Layers"][user] = userCanvas
-                    answer.end(ROOMS[room]["Layers"].toString())  
-                }
-                else{
-                    answer.end("Room not found")                    
-                }
-            }
-            else if(url_parts === '/create' || url_parts === '/create/') // CREATE ACCOUNT --
+            if(url_parts === '/create' || url_parts === '/create/') // CREATE ACCOUNT --
             {   
                 const url_query = url.parse(request.url, true).query  //  url query:  [Object: null prototype] { pseudo: 'simon', pass: '1234' }
                 const checked_pseudo = url_query["pseudo"]
@@ -94,7 +71,6 @@ var server = http.createServer(
             {
                 const url_query = url.parse(request.url, true).query  
 
-                console.log(url_query);
                 const name = url_query["name"]                
                 if (name in ROOMS){
                     console.log("Name not avaible");
@@ -114,17 +90,51 @@ var server = http.createServer(
             }
             else if (url_parts === '/roomlistpass' || url_parts === '/roomlistpass/')
             {
+                console.log("in ROOMLIST");
                 let passwordList = {}
                 for (roomName in ROOMS){
                     console.log("roomlistpass iterate " + roomName);
                     console.log("roomlistpass room " + ROOMS[roomName].toString());
                     console.log("roomlistpass pass " + ROOMS[roomName]["Password"].toString());
-                    passwordList.push([roomName] = ROOMS[roomName]["Password"].toString())
+                    passwordList[roomName] = ROOMS[roomName]["Password"].toString()
                 }
-                console.log("passlist " + passwordList.toString());
+                console.log("passlist " + JSON.stringify(passwordList));
                 
-                answer.end(passwordList.toString())    
+                answer.end(JSON.stringify(passwordList))
             }
+        }
+        else if (request.method === 'POST'){
+            if(url_parts === '/updateroom' || url_parts === '/updateroom/') // UPDATE ROOM --
+            {   
+                console.log("in update");
+                const url_query = url.parse(request.url, true).query 
+                const room = url_query["room"]
+                const user = url_query["user"]
+                const iterator = url_query["it"]
+
+                let map = ""
+                request.on('data', function (chunk) {
+                    map += chunk;
+                });
+
+                request.on('end', function () {
+                    if (room in ROOMS){
+                        let userCanvas = {
+                            map: map,
+                            iterator: iterator
+                        }
+                                    
+                        ROOMS[room]["Layers"][user] = userCanvas
+                        answer.writeHead(200);
+                        answer.end(ROOMS[room]["Layers"].toString())  
+                    }
+                    else{
+                        answer.writeHead(404);
+                        answer.end("Room not found")                    
+                    }
+                });
+
+            } 
         }
     })
 
