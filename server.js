@@ -90,23 +90,22 @@ var server = http.createServer(
             }
             else if (url_parts === '/roomlistpass' || url_parts === '/roomlistpass/')
             {
-                console.log("in ROOMLIST");
                 let passwordList = {}
                 for (roomName in ROOMS){
-                    console.log("roomlistpass iterate " + roomName);
-                    console.log("roomlistpass room " + ROOMS[roomName].toString());
-                    console.log("roomlistpass pass " + ROOMS[roomName]["Password"].toString());
                     passwordList[roomName] = ROOMS[roomName]["Password"].toString()
                 }
                 console.log("passlist " + JSON.stringify(passwordList));
                 
                 answer.end(JSON.stringify(passwordList))
             }
+            else if (url_parts === '/roomlist' || url_parts === '/roomlist/')
+            {
+                answer.end(JSON.stringify(ROOMS))
+            }
         }
         else if (request.method === 'POST'){
             if(url_parts === '/updateroom' || url_parts === '/updateroom/') // UPDATE ROOM --
             {   
-                console.log("in update");
                 const url_query = url.parse(request.url, true).query 
                 const room = url_query["room"]
                 const user = url_query["user"]
@@ -126,7 +125,7 @@ var server = http.createServer(
                                     
                         ROOMS[room]["Layers"][user] = userCanvas
                         answer.writeHead(200);
-                        answer.end(ROOMS[room]["Layers"].toString())  
+                        answer.end(JSON.stringify(ROOMS[room]["Layers"]))
                     }
                     else{
                         answer.writeHead(404);
