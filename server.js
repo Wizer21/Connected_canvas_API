@@ -14,6 +14,7 @@ var server = http.createServer(
         const url_parts = url.parse(request.url, true).pathname //  /create
         if(request.method === 'GET')
         {
+            console.log('IN IN IN ' + url_parts);
             if(url_parts === '/create' || url_parts === '/create/') // CREATE ACCOUNT --
             {   
                 const url_query = url.parse(request.url, true).query  //  url query:  [Object: null prototype] { pseudo: 'simon', pass: '1234' }
@@ -94,13 +95,31 @@ var server = http.createServer(
                 for (roomName in ROOMS){
                     passwordList[roomName] = ROOMS[roomName]["Password"].toString()
                 }
-                console.log("passlist " + JSON.stringify(passwordList));
                 
                 answer.end(JSON.stringify(passwordList))
             }
             else if (url_parts === '/roomlist' || url_parts === '/roomlist/')
             {
                 answer.end(JSON.stringify(ROOMS))
+            }
+            else if (url_parts === '/leaveroom' || url_parts === '/leaveroom/')
+            {
+                const url_query = url.parse(request.url, true).query  
+                let room = url_query["room"]
+                let user = url_query["user"]
+
+                if (user in ROOMS[room]["Layers"]){
+                    delete ROOMS[room]["Layers"][user]
+                    console.log(user + " leaved " + room);
+                    answer.end(user + " leaved " + room)
+                }
+                else{
+                    answer.writeHead(404)
+                    answer.end(user + " not found")                    
+                }                
+                if (Object.keys(ROOMS[room]["Layers"]).length == 0){
+                    delete ROOMS[room]
+                }
             }
         }
         else if (request.method === 'POST'){
@@ -110,20 +129,27 @@ var server = http.createServer(
                 const room = url_query["room"]
                 const user = url_query["user"]
                 const iterator = url_query["it"]
-
-                let map = ""
+                console.log("UPDATE " + room);
+                let newMap = ""
                 request.on('data', function (chunk) {
-                    map += chunk;
+                    newMap += chunk;
                 });
 
                 request.on('end', function () {
-                    if (room in ROOMS){
-                        let userCanvas = {
-                            map: map,
-                            iterator: iterator
+                    if (room in ROOMS){ // IF ROOM EXIST
+                        if (ROOMS[room]["Layers"][user]){ // IF PLAYER EXIST 
+                            if (ROOMS[room]["Layers"][user]["iterator"] !== iterator){  // IF HIS ITERATOR CHANGED                                         
+                                ROOMS[room]["Layers"][user]["map"] = newMap // UPDATE MAP 
+                                ROOMS[room]["Layers"][user]["iterator"] = iterator // UPDATE ITERATOR 
+                            }   
                         }
-                                    
-                        ROOMS[room]["Layers"][user] = userCanvas
+                        else{
+                            let userCanvas = {
+                                map: newMap,
+                                iterator: iterator
+                            }                                        
+                            ROOMS[room]["Layers"][user] = userCanvas // CREATE HIS MAP
+                        }             
                         answer.writeHead(200);
                         answer.end(JSON.stringify(ROOMS[room]["Layers"]))
                     }
