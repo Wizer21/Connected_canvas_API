@@ -14,7 +14,6 @@ var server = http.createServer(
         const url_parts = url.parse(request.url, true).pathname //  /create
         if(request.method === 'GET')
         {
-            console.log('IN IN IN ' + url_parts);
             if(url_parts === '/create' || url_parts === '/create/') // CREATE ACCOUNT --
             {   
                 const url_query = url.parse(request.url, true).query  //  url query:  [Object: null prototype] { pseudo: 'simon', pass: '1234' }
@@ -129,7 +128,6 @@ var server = http.createServer(
                 const room = url_query["room"]
                 const user = url_query["user"]
                 const iterator = url_query["it"]
-                console.log("UPDATE " + room);
                 let newMap = ""
                 request.on('data', function (chunk) {
                     newMap += chunk;
